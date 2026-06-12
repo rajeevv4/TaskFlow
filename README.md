@@ -1,84 +1,131 @@
-# Project management system using MERN stack (Mongodb, Express.js, React.js and Node.js) 
+# TaskFlow – Full Stack Project Management Platform
 
+TaskFlow is a full-stack project management application built using the MERN stack (MongoDB, Express.js, React.js, and Node.js). It enables teams to create projects, manage tasks, track progress, and collaborate through an intuitive and responsive interface.
 
+## Features
 
-## Setup instruction
+* Project creation and management
+* Task assignment and tracking
+* Task status updates and workflow management
+* Interactive Kanban-style task board
+* Responsive user interface
+* RESTful API architecture
+* MongoDB database integration
+* Modular and scalable code structure
 
-- Step 1: install dependencies/node_module
-  - Go to /backend directory for backend setup and run `npm install`
+## Tech Stack
 
-  - Go to /frontend directory for frontend setup and run `npm install`
+### Frontend
 
-- Step 2: Configure mongodb connection url
-Go to backend directory and create .env file 
-and put into `MONGODB_PATH=your-mongodb-connection-url`
+* React.js
+* Tailwind CSS
+* React Router
+* Axios
+* Headless UI
 
-- Step 3:  Change server port and cors origin (Optional)
-by default your server running in port `http://localhost:9000` and cors origin/frontend url is`http://localhost:3000` , you can change port and cors, simply put this key into your .env
-`SERVER_PORT=your-port` and` CORS_ORIGIN=-your-client-origin`
+### Backend
 
-- Step 4: Run project
-in your backend `npm run serve` for start node server and `npm run start` for frontend
+* Node.js
+* Express.js
 
-## Packages used
-- Tailwindcss
-- Headlessui
-- React router
-- Axios
-- UUID
-- Joi
-- Cors
-- Dotenv
+### Database
 
+* MongoDB
 
-## Project Screenshot
-#### Todo board quick preview
-![React-App](https://user-images.githubusercontent.com/96901635/191009449-0083044c-c961-45cd-9da4-7184289b9573.gif)
-#### Todo board
-![image](https://user-images.githubusercontent.com/96901635/191006996-0c185cdd-5834-47c6-8927-2e7d539866a7.png)
-#### Task insert
-![image](https://user-images.githubusercontent.com/96901635/191007092-eb25cfc8-c056-4be2-a898-00ad29d65785.png)
-#### Edit task
-![image](https://user-images.githubusercontent.com/96901635/191008217-6a0175e6-d5a9-4d98-8951-4a528d2bef99.png)
-#### Edit project
-![image](https://user-images.githubusercontent.com/96901635/191008043-8c9113a1-700f-42bb-9f87-e68db159c4dc.png)
+### Additional Packages
 
+* Joi Validation
+* UUID
+* Dotenv
+* Cors
 
+---
 
+## Installation & Setup
 
-## Available Scripts
+### 1. Clone Repository
 
-In the project directory, you can run:
+```bash
+git clone <repository-url>
+cd taskflow
+```
 
-### `npm start`
+### 2. Install Dependencies
 
-Runs the app in the development mode.\
-Open [http://localhost:3000](http://localhost:3000) to view it in your browser.
+Backend:
 
-The page will reload when you make changes.\
-You may also see any lint errors in the console.
+```bash
+cd backend
+npm install
+```
 
-### `npm test`
+Frontend:
 
-Launches the test runner in the interactive watch mode.\
-See the section about [running tests](https://facebook.github.io/create-react-app/docs/running-tests) for more information.
+```bash
+cd frontend
+npm install
+```
 
-### `npm run build`
+### 3. Configure Environment Variables
 
-Builds the app for production to the `build` folder.\
-It correctly bundles React in production mode and optimizes the build for the best performance.
+Create a `.env` file inside the backend folder:
 
-The build is minified and the filenames include the hashes.\
-Your app is ready to be deployed!
+```env
+MONGODB_PATH=your_mongodb_connection_string
+SERVER_PORT=9000
+CORS_ORIGIN=http://localhost:3000
+```
 
-See the section about [deployment](https://facebook.github.io/create-react-app/docs/deployment) for more information.
+### 4. Start Backend Server
 
-### `npm run eject`
+```bash
+cd backend
+npm run serve
+```
 
-**Note: this is a one-way operation. Once you `eject`, you can't go back!**
+### 5. Start Frontend
 
-If you aren't satisfied with the build tool and configuration choices, you can `eject` at any time. This command will remove the single build dependency from your project.
+```bash
+cd frontend
+npm start
+```
 
-Instead, it will copy all the configuration files and the transitive dependencies (webpack, Babel, ESLint, etc) right into your project so you have full control over them. All of the commands except `eject` will still work, but they will point to the copied scripts so you can tweak them. At this point you're on your own.
+---
 
-You don't have to ever use `eject`. The curated feature set is suitable for small and middle deployments, and you shouldn't feel obligated to use this feature. However we understand that this tool wouldn't be useful if you couldn't customize it when you are ready for it.
+## Project Architecture
+
+Frontend (React)
+↓
+REST APIs
+↓
+Backend (Node.js + Express)
+↓
+MongoDB Database
+
+---
+
+## Key Learning Outcomes
+
+* Building scalable full-stack web applications
+* Designing RESTful APIs
+* Managing application state in React
+* Database modeling with MongoDB
+* Client-server communication using Axios
+* Implementing modular backend architecture
+
+---
+
+## Future Enhancements
+
+* User Authentication & Authorization
+* Role-Based Access Control
+* Real-Time Notifications
+* Team Collaboration Features
+* Activity Logs & Analytics Dashboard
+* Cloud Deployment Support
+
+---
+
+## Author
+
+Rajeev Karakoti
