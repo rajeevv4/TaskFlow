@@ -37,8 +37,8 @@ const AddProjectModal = ({ isModalOpen, closeModal, edit = false, id = null }) =
                     setDesc('')
                 })
                 .catch((error) => {
-                    if (error.response.status === 422) {
-                        toast.error(error.response.data.details[0].message)
+                    if (error.response && error.response.status === 422) {
+                        toast.error(error.response.data.message || 'Validation error')
                     } else {
                         toast.error('Something went wrong')
                     }
@@ -54,8 +54,8 @@ const AddProjectModal = ({ isModalOpen, closeModal, edit = false, id = null }) =
                     setDesc('')
                 })
                 .catch((error) => {
-                    if (error.response.status === 422) {
-                        toast.error(error.response.data.details[0].message)
+                    if (error.response && error.response.status === 422) {
+                        toast.error(error.response.data.message || 'Validation error')
                     } else {
                         toast.error('Something went wrong')
                     }

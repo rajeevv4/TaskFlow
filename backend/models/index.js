@@ -2,6 +2,11 @@
 import mongoose from "mongoose";
 
 const project = new mongoose.Schema({
+    userId: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'User',
+        required: true
+    },
     title: {
         type: String,
         unique: true // `email` must be unique
@@ -18,6 +23,14 @@ const project = new mongoose.Schema({
             attachment: [
                 { type: String, url: String }
             ],
+            priority: {
+                type: String,
+                enum: ['Low', 'Medium', 'High'],
+                default: 'Medium'
+            },
+            dueDate: {
+                type: Date
+            },
             created_at: { type: Date, default: Date.now },
             updated_at: { type: Date, default: Date.now },
         }

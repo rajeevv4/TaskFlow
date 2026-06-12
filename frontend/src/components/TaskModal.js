@@ -66,20 +66,69 @@ const TaskModal = ({ isOpen, setIsOpen, id }) => {
                                         </svg>
                                     </button>
                                 </Dialog.Title>
-                                <div className='flex gap-4 h-[inherit]'>
-                                    <div className="!w-8/12 px-8 space-y-3 py-4 min-h-max  overflow-y-auto">
-                                        <h1 className='text-3xl font-semibold '>{capitalizeFirstLetter(taskData.title)}</h1>
-                                        <p className='text-gray-600'>{capitalizeFirstLetter(taskData.description)}</p>
-                                        {/* <p className='text-gray-600'>Lorem ipsum dolor sit, amet consectetur adipisicing elit. Asperiores modi error, voluptatibus ullam odio nemo culpa optio incidunt, soluta sunt eos laboriosam labore animi dolorum voluptas officiis fugit perspiciatis laborum.</p> */}
-                                        {/* <div>
-                                            <h3 className='text-base text-gray-600 font-medium mt-3 mb-2'>Attachment</h3>
-                                            <div className="flex items-center">
-                                                <img className='aspect-video w-56 rounded' src={Attachment} alt="" />
-                                            </div>
-                                        </div> */}
+                                <div className='flex flex-col md:flex-row gap-4 h-[inherit] overflow-y-auto pb-10'>
+                                    <div className="w-full md:w-8/12 px-8 space-y-4 py-4 min-h-max">
+                                        <h1 className='text-3xl font-bold text-slate-800 tracking-tight capitalize'>{capitalizeFirstLetter(taskData.title)}</h1>
+                                        <div>
+                                            <h3 className="text-xs font-semibold text-slate-400 uppercase tracking-wider mb-1">Description</h3>
+                                            <p className='text-slate-600 leading-relaxed bg-slate-50 p-4 rounded-lg border border-slate-100 whitespace-pre-wrap'>{capitalizeFirstLetter(taskData.description) || "No description provided."}</p>
+                                        </div>
                                     </div>
-                                    <div className="w-4/12 py-4 pr-4">
-                                        {/* <div className='border h-full rounded-md'></div> */}
+                                    <div className="w-full md:w-4/12 py-4 px-6 md:pr-8 md:pl-0">
+                                        <div className='bg-slate-50 border border-slate-200 rounded-xl p-5 space-y-4'>
+                                            <h3 className="text-sm font-bold text-slate-700 border-b border-slate-200 pb-2">Properties</h3>
+                                            
+                                            {/* Stage / Status */}
+                                            <div>
+                                                <span className="block text-xs font-medium text-slate-400 uppercase tracking-wider mb-1">Status</span>
+                                                <span className="inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold bg-indigo-50 text-indigo-700 border border-indigo-100">
+                                                    {taskData.stage || 'Requested'}
+                                                </span>
+                                            </div>
+
+                                            {/* Priority */}
+                                            <div>
+                                                <span className="block text-xs font-medium text-slate-400 uppercase tracking-wider mb-1">Priority</span>
+                                                <span className={`inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold border ${
+                                                    taskData.priority === 'High' 
+                                                        ? 'bg-red-50 text-red-700 border-red-100' 
+                                                        : taskData.priority === 'Medium' 
+                                                        ? 'bg-amber-50 text-amber-700 border-amber-100' 
+                                                        : 'bg-slate-100 text-slate-600 border-slate-200'
+                                                }`}>
+                                                    {taskData.priority || 'Medium'}
+                                                </span>
+                                            </div>
+
+                                            {/* Due Date */}
+                                            <div>
+                                                <span className="block text-xs font-medium text-slate-400 uppercase tracking-wider mb-1">Due Date</span>
+                                                <div className="flex items-center space-x-2">
+                                                    <span className={`text-sm font-medium ${
+                                                        taskData.dueDate && taskData.stage !== 'Done' && new Date(taskData.dueDate).setHours(0,0,0,0) < new Date().setHours(0,0,0,0)
+                                                            ? 'text-red-600 font-bold'
+                                                            : 'text-slate-700'
+                                                    }`}>
+                                                        {taskData.dueDate ? new Date(taskData.dueDate).toLocaleDateString(undefined, { year: 'numeric', month: 'short', day: 'numeric' }) : 'No due date'}
+                                                    </span>
+                                                    {taskData.dueDate && taskData.stage !== 'Done' && new Date(taskData.dueDate).setHours(0,0,0,0) < new Date().setHours(0,0,0,0) && (
+                                                        <span className="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-bold bg-red-100 text-red-800 border border-red-200">
+                                                            Overdue
+                                                        </span>
+                                                    )}
+                                                </div>
+                                            </div>
+
+                                            {/* Created At */}
+                                            {taskData.created_at && (
+                                                <div className="border-t border-slate-200 pt-3">
+                                                    <span className="block text-xs font-medium text-slate-400 uppercase tracking-wider mb-0.5">Created On</span>
+                                                    <span className="text-xs text-slate-500">
+                                                        {new Date(taskData.created_at).toLocaleString(undefined, { dateStyle: 'medium', timeStyle: 'short' })}
+                                                    </span>
+                                                </div>
+                                            )}
+                                        </div>
                                     </div>
                                 </div>
 

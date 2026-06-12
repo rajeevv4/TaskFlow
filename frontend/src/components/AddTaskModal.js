@@ -8,51 +8,74 @@ import toast from 'react-hot-toast'
 const AddTaskModal = ({ isAddTaskModalOpen, setAddTaskModal, projectId = null, taskId = null, edit = false, refreshData }) => {
 
     const [title, setTitle] = useState('')
-    const [desc, setDesc] = useState('');
+    const [desc, setDesc] = useState('')
+    const [priority, setPriority] = useState('Medium')
+    const [dueDate, setDueDate] = useState('')
 
     useEffect(() => {
         if (edit && isAddTaskModalOpen) {
             axios.get(`http://localhost:9000/project/${projectId}/task/${taskId}`)
                 .then((res) => {
-                    setTitle(res.data[0].task[0].title)
-                    setDesc(res.data[0].task[0].description)
+                    const task = res.data[0].task[0];
+                    setTitle(task.title)
+                    setDesc(task.description)
+                    setPriority(task.priority || 'Medium')
+                    setDueDate(task.dueDate ? task.dueDate.slice(0, 10) : '')
                 })
                 .catch((error) => {
+                    console.error("AddTaskModal: edit fetch error", error)
                     toast.error('Something went wrong')
                 })
             console.log('edit function call')
+        } else {
+            setTitle('')
+            setDesc('')
+            setPriority('Medium')
+            setDueDate('')
         }
-    }, [isAddTaskModalOpen]);
+    }, [isAddTaskModalOpen, edit, projectId, taskId]);
 
     const handleSubmit = (e) => {
         e.preventDefault()
+        const payload = { 
+            title, 
+            description: desc,
+            priority,
+            dueDate: dueDate || null
+        }
+
         if (!edit) {
-            axios.post(`http://localhost:9000/project/${projectId}/task`, { title, description: desc })
+            axios.post(`http://localhost:9000/project/${projectId}/task`, payload)
                 .then((res) => {
                     setAddTaskModal(false)
                     toast.success('Task created successfully')
                     setTitle('')
                     setDesc('')
+                    setPriority('Medium')
+                    setDueDate('')
+                    if (refreshData) refreshData(true)
                 })
                 .catch((error) => {
-                    if (error.response.status === 422) {
-                        toast.error(error.response.data.details[0].message)
+                    if (error.response && error.response.status === 422) {
+                        toast.error(error.response.data.message || 'Validation error')
                     } else {
                         toast.error('Something went wrong')
                     }
                 })
         } else {
-            axios.put(`http://localhost:9000/project/${projectId}/task/${taskId}`, { title, description: desc })
+            axios.put(`http://localhost:9000/project/${projectId}/task/${taskId}`, payload)
                 .then((res) => {
                     setAddTaskModal(false)
                     toast.success('Task is updated')
-                    refreshData(true)
                     setTitle('')
                     setDesc('')
+                    setPriority('Medium')
+                    setDueDate('')
+                    if (refreshData) refreshData(true)
                 })
                 .catch((error) => {
-                    if (error.response.status === 422) {
-                        toast.error(error.response.data.details[0].message)
+                    if (error.response && error.response.status === 422) {
+                        toast.error(error.response.data.message || 'Validation error')
                     } else {
                         toast.error('Something went wrong')
                     }
@@ -86,7 +109,7 @@ const AddTaskModal = ({ isAddTaskModalOpen, setAddTaskModal, projectId = null, t
                             leaveFrom="opacity-100 scale-100"
                             leaveTo="opacity-0 scale-95"
                         >
-                            <Dialog.Panel className="rounded-md bg-white w-6/12">
+                            <Dialog.Panel className="rounded-md bg-white w-11/12 sm:w-8/12 md:w-6/12 max-w-lg">
 
                                 <Dialog.Title as='div' className={'bg-white shadow px-6 py-4 rounded-t-md sticky top-0'}>
                                     {!edit ? (<h1>Add Task</h1>) : (<h1>Edit Task</h1>)}
@@ -98,12 +121,26 @@ const AddTaskModal = ({ isAddTaskModalOpen, setAddTaskModal, projectId = null, t
                                 </Dialog.Title>
                                 <form onSubmit={handleSubmit} className='gap-4 px-8 py-4'>
                                     <div className='mb-3'>
-                                        <label htmlFor="title" className='block text-gray-600'>Title</label>
-                                        <input value={title} onChange={(e) => setTitle(e.target.value)} type="text" className='border border-gray-300 rounded-md w-full text-sm py-2 px-2.5 focus:border-indigo-500 focus:outline-offset-1 focus:outline-indigo-400' placeholder='Task title' />
+                                        <label htmlFor="title" className='block text-gray-600 text-sm font-medium mb-1'>Title</label>
+                                        <input value={title} onChange={(e) => setTitle(e.target.value)} type="text" className='border border-gray-300 rounded-md w-full text-sm py-2 px-2.5 focus:border-indigo-500 focus:outline-offset-1 focus:outline-indigo-400' placeholder='Task title' required />
                                     </div>
-                                    <div className='mb-2'>
-                                        <label htmlFor="Description" className='block text-gray-600'>Description</label>
-                                        <textarea value={desc} onChange={(e) => setDesc(e.target.value)} className='border border-gray-300 rounded-md w-full text-sm py-2 px-2.5 focus:border-indigo-500 focus:outline-offset-1 focus:outline-indigo-400' rows="6" placeholder='Task description'></textarea>
+                                    <div className='mb-3'>
+                                        <label htmlFor="Description" className='block text-gray-600 text-sm font-medium mb-1'>Description</label>
+                                        <textarea value={desc} onChange={(e) => setDesc(e.target.value)} className='border border-gray-300 rounded-md w-full text-sm py-2 px-2.5 focus:border-indigo-500 focus:outline-offset-1 focus:outline-indigo-400' rows="4" placeholder='Task description' required></textarea>
+                                    </div>
+                                    <div className='grid grid-cols-2 gap-4 mb-4'>
+                                        <div>
+                                            <label htmlFor="priority" className='block text-gray-600 text-sm font-medium mb-1'>Priority</label>
+                                            <select value={priority} onChange={(e) => setPriority(e.target.value)} className='border border-slate-300 rounded-md w-full text-sm py-2 px-2.5 focus:border-indigo-500 focus:outline-indigo-400 bg-white'>
+                                                <option value="Low">Low</option>
+                                                <option value="Medium">Medium</option>
+                                                <option value="High">High</option>
+                                            </select>
+                                        </div>
+                                        <div>
+                                            <label htmlFor="dueDate" className='block text-gray-600 text-sm font-medium mb-1'>Due Date</label>
+                                            <input value={dueDate} onChange={(e) => setDueDate(e.target.value)} type="date" className='border border-slate-300 rounded-md w-full text-sm py-2 px-2.5 focus:border-indigo-500 focus:outline-indigo-400' />
+                                        </div>
                                     </div>
                                     <div className='flex justify-end items-center space-x-2'>
                                         <BtnSecondary onClick={() => setAddTaskModal(false)}>Cancel</BtnSecondary>

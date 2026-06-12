@@ -1,25 +1,49 @@
-import AppLayout from "./components/AppLayout";
-import { Routes, Route } from "react-router-dom";
-import Task from "./components/Task";
+import React from "react";
+import { Routes, Route, Navigate } from "react-router-dom";
 import { Toaster } from "react-hot-toast";
+import AppLayout from "./components/AppLayout";
+import Task from "./components/Task";
+import Dashboard from "./components/Dashboard";
+import Login from "./components/Login";
+import Signup from "./components/Signup";
+
+const ProtectedRoute = ({ children }) => {
+  const token = localStorage.getItem("token");
+  if (!token) {
+    return <Navigate to="/login" replace />;
+  }
+  return <AppLayout>{children}</AppLayout>;
+};
+
 function App() {
-  console.log('render app..')
+  console.log('render app..');
   return (
-    <AppLayout>
-      <Toaster
-        position="top-right"
-        gutter={8}
-      />
+    <>
+      <Toaster position="top-right" gutter={8} />
       <Routes>
-        <Route path="/:projectId" element={<Task />} />
-        <Route path="/" element={
-          <div className="flex flex-col items-center w-full pt-10">
-            <img src="./image/welcome.svg" className="w-5/12" alt="" />
-            <h1 className="text-lg text-gray-600">Select or create new project</h1>
-          </div>
-        } />
+        {/* Public Routes */}
+        <Route path="/login" element={<Login />} />
+        <Route path="/signup" element={<Signup />} />
+
+        {/* Protected Routes */}
+        <Route
+          path="/:projectId"
+          element={
+            <ProtectedRoute>
+              <Task />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/"
+          element={
+            <ProtectedRoute>
+              <Dashboard />
+            </ProtectedRoute>
+          }
+        />
       </Routes>
-    </AppLayout>
+    </>
   );
 }
 

@@ -2,7 +2,6 @@ import React, { useEffect, useState } from "react";
 import { DragDropContext, Draggable, Droppable } from "react-beautiful-dnd";
 import { v4 as uuid } from "uuid";
 import AddTaskModal from "./AddTaskModal";
-import BtnPrimary from './BtnPrimary'
 import DropdownMenu from "./DropdownMenu";
 // import TaskModal from "./TaskModal";
 import { useParams, useNavigate } from "react-router";
@@ -142,6 +141,8 @@ function Task() {
                         }
                     })
                     setRenderChange(false)
+                    // Notify sidebar to refresh task counts and activities
+                    document.dispatchEvent(new CustomEvent('projectUpdate'));
                 }).catch((error) => {
                     toast.error('Something went wrong')
                 })
@@ -151,6 +152,7 @@ function Task() {
     const updateTodo = (data) => {
         axios.put(`http://localhost:9000/project/${projectId}/todo`, data)
             .then((res) => {
+                setRenderChange(true)
             }).catch((error) => {
                 toast.error('Something went wrong')
             })
@@ -163,7 +165,7 @@ function Task() {
                 toast.success('Task is deleted')
                 setRenderChange(true)
             }).catch((error) => {
-
+                console.error("Task: delete error", error)
                 toast.error('Something went wrong')
             })
     }
@@ -173,87 +175,207 @@ function Task() {
         setTaskOpen(true);
     }
 
+    const handleExportReport = async () => {
+        try {
+            const res = await axios.get(`http://localhost:9000/project/${projectId}/report`, {
+                responseType: 'blob'
+            })
+            const url = window.URL.createObjectURL(new Blob([res.data]))
+            const link = document.createElement('a')
+            link.href = url
+            link.setAttribute('download', `TaskFlow-Report-${title.replace(/[^a-zA-Z0-9]/g, '_')}.csv`)
+            document.body.appendChild(link)
+            link.click()
+            link.remove()
+            toast.success('Report exported successfully')
+        } catch (err) {
+            console.error("Task: Export report error", err)
+            toast.error('Failed to export report')
+        }
+    }
+
+    // Calculate statistics for header
+    let totalTasks = 0;
+    let completedTasks = 0;
+    let pendingTasks = 0;
+
+    if (columns && Object.keys(columns).length > 0) {
+        Object.values(columns).forEach(column => {
+            if (column && column.items) {
+                totalTasks += column.items.length;
+                if (column.name === 'Done') {
+                    completedTasks += column.items.length;
+                } else {
+                    pendingTasks += column.items.length;
+                }
+            }
+        });
+    }
+
     return (
-        <div className='px-12 py-6 w-full'>
-            <div className="flex items-center justify-between mb-6">
-                <h1 className='text-xl text-gray-800 flex justify-start items-center space-x-2.5'>
-                    <span>{title.slice(0, 25)}{title.length > 25 && '...'}</span>
+        <div className='px-6 md:px-8 py-6 w-full flex flex-col h-[calc(100vh-56px)] bg-slate-50/30 overflow-hidden'>
+            {/* Board Header */}
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6">
+                <div className="flex items-center space-x-3">
+                    <h1 className='text-2xl font-bold text-slate-800 tracking-tight flex items-center space-x-2.5 capitalize'>
+                        <span>{title}</span>
+                    </h1>
                     <ProjectDropdown id={projectId} navigate={navigate} />
-                </h1>
-                <BtnPrimary onClick={() => setAddTaskModal(true)}>Add todo</BtnPrimary>
+                </div>
+                
+                <div className="flex items-center space-x-3">
+                    {/* Stats summary */}
+                    <div className="hidden md:flex items-center space-x-2 text-xs font-semibold">
+                        <span className="px-2.5 py-1.5 bg-slate-100 text-slate-600 rounded-md border border-slate-200">
+                            Tasks: {totalTasks}
+                        </span>
+                        <span className="px-2.5 py-1.5 bg-emerald-50 text-emerald-700 rounded-md border border-emerald-100">
+                            Completed: {completedTasks}
+                        </span>
+                        <span className="px-2.5 py-1.5 bg-amber-50 text-amber-700 rounded-md border border-amber-100">
+                            Pending: {pendingTasks}
+                        </span>
+                    </div>
+
+                    <button 
+                        onClick={handleExportReport}
+                        className="inline-flex items-center space-x-1.5 bg-slate-100 hover:bg-slate-200 text-slate-700 font-medium text-sm px-4 py-2 rounded-lg shadow-sm border border-slate-200 transition focus:outline-none focus:ring-2 focus:ring-slate-500 focus:ring-offset-2"
+                    >
+                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor" className="w-4 h-4">
+                            <path strokeLinecap="round" strokeLinejoin="round" d="M3 16.5v2.25A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75V16.5M16.5 12L12 16.5m0 0L7.5 12m4.5 4.5V3" />
+                        </svg>
+                        <span>Export Report</span>
+                    </button>
+
+                    <button 
+                        onClick={() => setAddTaskModal(true)}
+                        className="inline-flex items-center space-x-1.5 bg-indigo-600 hover:bg-indigo-700 text-white font-medium text-sm px-4 py-2 rounded-lg shadow-sm hover:shadow transition focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2"
+                    >
+                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" className="w-4 h-4">
+                            <path d="M10.75 4.75a.75.75 0 00-1.5 0v4.5h-4.5a.75.75 0 000 1.5h4.5v4.5a.75.75 0 001.5 0v-4.5h4.5a.75.75 0 000-1.5h-4.5v-4.5z" />
+                        </svg>
+                        <span>Add Task</span>
+                    </button>
+                </div>
             </div>
-            <DragDropContext
-                onDragEnd={result => onDragEnd(result, columns, setColumns)}
-            >
-                <div className="flex gap-5">
-                    {Object.entries(columns).map(([columnId, column], index) => {
-                        return (
-                            <div
-                                className="w-3/12 h-[580px]"
-                                key={columnId}
-                            >
-                                <div className="pb-2.5 w-full flex justify-between">
-                                    <div className="inline-flex items-center space-x-2">
-                                        <h2 className=" text-[#1e293b] font-medium text-sm uppercase leading-3">{column.name}</h2>
-                                        <span className={`h-5 inline-flex items-center justify-center px-2 mb-[2px] leading-none rounded-full text-xs font-semibold text-gray-500 border border-gray-300 ${column.items.length < 1 && 'invisible'}`}>{column.items?.length}</span>
+            
+            {/* Small stats for mobile */}
+            <div className="flex md:hidden items-center space-x-2 text-[10px] font-bold mb-4">
+                <span className="px-2 py-0.5 bg-slate-100 text-slate-600 rounded border border-slate-200">
+                    Tasks: {totalTasks}
+                </span>
+                <span className="px-2 py-0.5 bg-emerald-50 text-emerald-700 rounded border border-emerald-100">
+                    Completed: {completedTasks}
+                </span>
+                <span className="px-2 py-0.5 bg-amber-50 text-amber-700 rounded border border-amber-100">
+                    Pending: {pendingTasks}
+                </span>
+            </div>
+
+            {/* Kanban Board Columns */}
+            <div className="flex-1 flex flex-col min-h-0 pr-1 w-full mt-2">
+                <DragDropContext
+                    onDragEnd={result => onDragEnd(result, columns, setColumns)}
+                >
+                    <div className="flex flex-row overflow-x-auto gap-5 pb-6 scroll-smooth snap-x snap-mandatory h-full">
+                        {Object.entries(columns).map(([columnId, column]) => {
+                            return (
+                                <div
+                                    className="w-[280px] sm:w-[320px] lg:w-auto lg:flex-1 shrink-0 lg:shrink flex flex-col h-full bg-slate-50/50 rounded-xl p-3 border border-slate-200/60 snap-center md:snap-align-none"
+                                    key={columnId}
+                                >
+                                    <div className="pb-3 w-full flex justify-between items-center px-1">
+                                        <div className="inline-flex items-center space-x-2">
+                                            <h2 className="text-slate-700 font-bold text-xs uppercase tracking-wider">{column.name}</h2>
+                                            <span className={`h-5 w-5 inline-flex items-center justify-center rounded-full text-[10px] font-bold ${
+                                                column.name === 'Done' ? 'bg-emerald-100 text-emerald-700' : 'bg-slate-200 text-slate-600'
+                                            } ${column.items.length < 1 && 'invisible'}`}>{column.items?.length}</span>
+                                        </div>
                                     </div>
-                                    <svg xmlns="http://www.w3.org/2000/svg" fill="currentColor" width={15} className="text-[#9ba8bc]" viewBox="0 0 448 512"><path d="M120 256c0 30.9-25.1 56-56 56s-56-25.1-56-56s25.1-56 56-56s56 25.1 56 56zm160 0c0 30.9-25.1 56-56 56s-56-25.1-56-56s25.1-56 56-56s56 25.1 56 56zm104 56c-30.9 0-56-25.1-56-56s25.1-56 56-56s56 25.1 56 56s-25.1 56-56 56z" /></svg>
-                                </div>
-                                <div>
-                                    <Droppable droppableId={columnId} key={columnId}>
-                                        {(provided, snapshot) => {
-                                            return (
-                                                <div
-                                                    {...provided.droppableProps}
-                                                    ref={provided.innerRef}
-                                                    className={`min-h-[530px] pt-4 duration-75 transition-colors border-t-2 border-indigo-400 ${snapshot.isDraggingOver && 'border-indigo-600'}`}
-                                                >
-                                                    {column.items.map((item, index) => {
-                                                        return (
-                                                            <Draggable
-                                                                key={item._id}
-                                                                draggableId={item._id}
-                                                                index={index}
-                                                            >
-                                                                {(provided, snapshot) => {
-                                                                    return (
-                                                                        <div
-                                                                            ref={provided.innerRef}
-                                                                            {...provided.draggableProps}
-                                                                            {...provided.dragHandleProps}
-                                                                            style={{ ...provided.draggableProps.style }}
-                                                                            onClick={() => handleTaskDetails(item._id)}
-                                                                            className={`select-none px-3.5 pt-3.5 pb-2.5 mb-2 border border-gray-200 rounded-lg shadow-sm bg-white relative ${snapshot.isDragging && 'shadow-md'}`}
-                                                                        >
-                                                                            <div className="pb-2">
-                                                                                <div className="flex item-center justify-between">
-                                                                                    <h3 className="text-[#1e293b] font-medium text-sm capitalize">{item.title.slice(0, 22)}{item.title.length > 22 && '...'}</h3>
+                                    <div className="flex-1 overflow-y-auto min-h-0 pr-1">
+                                        <Droppable droppableId={columnId} key={columnId}>
+                                            {(provided, snapshot) => {
+                                                return (
+                                                    <div
+                                                        {...provided.droppableProps}
+                                                        ref={provided.innerRef}
+                                                        className={`h-full min-h-[150px] pt-1 duration-75 transition-colors border-t border-indigo-400/30 ${snapshot.isDraggingOver && 'bg-slate-100/40 rounded-b-lg'}`}
+                                                    >
+                                                        {column.items.map((item, index) => {
+                                                            const isOverdue = item.dueDate && item.stage !== 'Done' && new Date(item.dueDate).setHours(0,0,0,0) < new Date().setHours(0,0,0,0);
+                                                            return (
+                                                                <Draggable
+                                                                    key={item._id}
+                                                                    draggableId={item._id}
+                                                                    index={index}
+                                                                >
+                                                                    {(provided, snapshot) => {
+                                                                        return (
+                                                                            <div
+                                                                                ref={provided.innerRef}
+                                                                                {...provided.draggableProps}
+                                                                                {...provided.dragHandleProps}
+                                                                                style={{ ...provided.draggableProps.style }}
+                                                                                onClick={() => handleTaskDetails(item._id)}
+                                                                                className={`select-none p-4 mb-3 border border-slate-200 hover:border-slate-300 rounded-lg shadow-xs hover:shadow-sm bg-white relative transition cursor-pointer ${snapshot.isDragging && 'shadow-md border-indigo-300'}`}
+                                                                            >
+                                                                                <div className="flex items-start justify-between gap-2">
+                                                                                    <h3 className="text-slate-800 font-semibold text-sm capitalize line-clamp-2 leading-snug">{item.title}</h3>
                                                                                     <DropdownMenu taskId={item._id} handleDelete={handleDelete} projectId={projectId} setRenderChange={setRenderChange} />
                                                                                 </div>
-                                                                                <p className="text-xs text-slate-500 leading-4 -tracking-tight">{item.description.slice(0, 60)}{item.description.length > 60 && '...'}</p>
-                                                                                <span className="py-1 px-2.5 bg-indigo-100 text-indigo-600 rounded-md text-xs font-medium mt-1 inline-block">Task-{item.index}</span>
+                                                                                <p className="text-xs text-slate-500 leading-normal mt-1 mb-3 line-clamp-2 capitalize">{item.description}</p>
+                                                                                
+                                                                                {/* Card footer details */}
+                                                                                <div className="flex items-center justify-between pt-2.5 border-t border-slate-100 text-[10px]">
+                                                                                    <span className="font-bold text-slate-400 bg-slate-100 px-1.5 py-0.5 rounded">T-{item.index}</span>
+                                                                                    <div className="flex items-center space-x-1.5">
+                                                                                        {/* Priority badge */}
+                                                                                        <span className={`px-2 py-0.5 rounded-full font-semibold border ${
+                                                                                            item.priority === 'High' 
+                                                                                                ? 'bg-red-50 text-red-600 border-red-100' 
+                                                                                                : item.priority === 'Medium' 
+                                                                                                ? 'bg-amber-50 text-amber-700 border-amber-100' 
+                                                                                                : 'bg-slate-100 text-slate-500 border-slate-200'
+                                                                                        }`}>
+                                                                                            {item.priority || 'Medium'}
+                                                                                        </span>
+                                                                                        
+                                                                                        {/* Due Date badge */}
+                                                                                        {item.dueDate && (
+                                                                                            <span className={`inline-flex items-center space-x-1 px-2 py-0.5 rounded-full border ${
+                                                                                                isOverdue
+                                                                                                    ? 'bg-red-50 text-red-600 border-red-100 font-bold'
+                                                                                                    : 'bg-slate-50 text-slate-500 border-slate-200'
+                                                                                            }`}>
+                                                                                                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2.5} stroke="currentColor" className="w-3 h-3">
+                                                                                                    <path strokeLinecap="round" strokeLinejoin="round" d="M6.75 3v2.25M17.25 3v2.25M3 18.75V7.5a2.25 2.25 0 012.25-2.25h13.5A2.25 2.25 0 0121 7.5v11.25m-18 0A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75m-18 0v-7.5A2.25 2.25 0 015.25 9h13.5A2.25 2.25 0 0121 11.25v7.5" />
+                                                                                                </svg>
+                                                                                                <span>{new Date(item.dueDate).toLocaleDateString(undefined, { month: 'short', day: 'numeric' })}</span>
+                                                                                            </span>
+                                                                                        )}
+                                                                                    </div>
+                                                                                </div>
                                                                             </div>
-                                                                        </div>
-                                                                    );
-                                                                }}
-                                                            </Draggable>
-                                                        );
-                                                    })}
-                                                    {provided.placeholder}
-                                                </div>
-                                            );
-                                        }}
-                                    </Droppable>
-
+                                                                        );
+                                                                    }}
+                                                                </Draggable>
+                                                            );
+                                                        })}
+                                                        {provided.placeholder}
+                                                    </div>
+                                                );
+                                            }}
+                                        </Droppable>
+                                    </div>
                                 </div>
-                            </div>
-                        );
-                    })}
-                </div >
-            </DragDropContext >
-            <AddTaskModal isAddTaskModalOpen={isAddTaskModalOpen} setAddTaskModal={setAddTaskModal} projectId={projectId} />
+                            );
+                        })}
+                    </div>
+                </DragDropContext>
+            </div>
+            <AddTaskModal isAddTaskModalOpen={isAddTaskModalOpen} setAddTaskModal={setAddTaskModal} projectId={projectId} refreshData={setRenderChange} />
             <TaskModal isOpen={isTaskOpen} setIsOpen={setTaskOpen} id={taskId} />
-        </div >
+        </div>
     );
 }
 
