@@ -9,7 +9,7 @@ const ProjectDropdown = ({ id, navigate }) => {
   const handleDelete = async () => {
     try {
       const data = await axios.delete(
-        `http://https://taskflow-lfo7.onrender.com/project/${id}`
+        `https://taskflow-lfo7.onrender.com/project/${id}`
       );
       if (data.data.deletedCount > 0) {
         toast.success("Record deleted successfully");

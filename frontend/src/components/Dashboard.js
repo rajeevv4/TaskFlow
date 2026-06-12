@@ -12,7 +12,7 @@ const Dashboard = () => {
 
   const fetchProjects = useCallback(() => {
     axios
-      .get("http://https://taskflow-lfo7.onrender.com/projects/")
+      .get("https://taskflow-lfo7.onrender.com/projects/")
       .then((res) => {
         setProjects(res.data);
       })
@@ -40,7 +40,7 @@ const Dashboard = () => {
     ) {
       try {
         const res = await axios.delete(
-          `http://https://taskflow-lfo7.onrender.com/project/${projectId}`
+          `https://taskflow-lfo7.onrender.com/project/${projectId}`
         );
         if (res.data.deletedCount > 0) {
           toast.success("Project deleted successfully");
@@ -69,7 +69,7 @@ const Dashboard = () => {
     e.preventDefault();
     try {
       const res = await axios.get(
-        `http://https://taskflow-lfo7.onrender.com/project/${projectId}/report`,
+        `https://taskflow-lfo7.onrender.com/project/${projectId}/report`,
         {
           responseType: "blob",
         }

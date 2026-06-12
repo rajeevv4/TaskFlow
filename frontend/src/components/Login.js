@@ -18,10 +18,10 @@ const Login = () => {
 
     setLoading(true);
     try {
-      const res = await axios.post(
-        "http://https://taskflow-lfo7.onrender.com/login",
-        { email, password }
-      );
+      const res = await axios.post("https://taskflow-lfo7.onrender.com/login", {
+        email,
+        password,
+      });
 
       localStorage.setItem("token", res.data.token);
       localStorage.setItem("user", JSON.stringify(res.data.user));

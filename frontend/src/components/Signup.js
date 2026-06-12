@@ -25,7 +25,7 @@ const Signup = () => {
     setLoading(true);
     try {
       const res = await axios.post(
-        "http://https://taskflow-lfo7.onrender.com/signup",
+        "https://taskflow-lfo7.onrender.com/signup",
         { name, email, password }
       );
 

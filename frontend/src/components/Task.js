@@ -109,7 +109,7 @@ function Task() {
   useEffect(() => {
     if (!isAddTaskModalOpen || isRenderChange) {
       axios
-        .get(`http://https://taskflow-lfo7.onrender.com/project/${projectId}`)
+        .get(`https://taskflow-lfo7.onrender.com/project/${projectId}`)
         .then((res) => {
           setTitle(res.data[0].title);
           setColumns({
@@ -158,10 +158,7 @@ function Task() {
 
   const updateTodo = (data) => {
     axios
-      .put(
-        `http://https://taskflow-lfo7.onrender.com/project/${projectId}/todo`,
-        data
-      )
+      .put(`https://taskflow-lfo7.onrender.com/project/${projectId}/todo`, data)
       .then((res) => {
         setRenderChange(true);
       })
@@ -174,7 +171,7 @@ function Task() {
     e.stopPropagation();
     axios
       .delete(
-        `http://https://taskflow-lfo7.onrender.com/project/${projectId}/task/${taskId}`
+        `https://taskflow-lfo7.onrender.com/project/${projectId}/task/${taskId}`
       )
       .then((res) => {
         toast.success("Task is deleted");
@@ -194,7 +191,7 @@ function Task() {
   const handleExportReport = async () => {
     try {
       const res = await axios.get(
-        `http://https://taskflow-lfo7.onrender.com/project/${projectId}/report`,
+        `https://taskflow-lfo7.onrender.com/project/${projectId}/report`,
         {
           responseType: "blob",
         }

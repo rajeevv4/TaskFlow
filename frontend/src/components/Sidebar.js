@@ -22,7 +22,7 @@ const Sidebar = ({ isOpen, closeSidebar }) => {
 
   const fetchProjectData = () => {
     axios
-      .get("http://https://taskflow-lfo7.onrender.com/projects/")
+      .get("https://taskflow-lfo7.onrender.com/projects/")
       .then((res) => {
         setProjects(res.data);
       })
@@ -39,7 +39,7 @@ const Sidebar = ({ isOpen, closeSidebar }) => {
     ) {
       axios
         .get(
-          `http://https://taskflow-lfo7.onrender.com/project/${activeProjectId}/activity`
+          `https://taskflow-lfo7.onrender.com/project/${activeProjectId}/activity`
         )
         .then((res) => {
           setActivities(res.data);

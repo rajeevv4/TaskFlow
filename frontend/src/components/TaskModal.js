@@ -17,7 +17,7 @@ const TaskModal = ({ isOpen, setIsOpen, id }) => {
     if (isOpen) {
       axios
         .get(
-          `http://https://taskflow-lfo7.onrender.com/project/${id.projectId}/task/${id.id}`
+          `https://taskflow-lfo7.onrender.com/project/${id.projectId}/task/${id.id}`
         )
         .then((data) => {
           setTaskData({ ...data.data[0].task[0] });

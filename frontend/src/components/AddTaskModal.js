@@ -22,7 +22,7 @@ const AddTaskModal = ({
     if (edit && isAddTaskModalOpen) {
       axios
         .get(
-          `http://https://taskflow-lfo7.onrender.com/project/${projectId}/task/${taskId}`
+          `https://taskflow-lfo7.onrender.com/project/${projectId}/task/${taskId}`
         )
         .then((res) => {
           const task = res.data[0].task[0];
@@ -56,7 +56,7 @@ const AddTaskModal = ({
     if (!edit) {
       axios
         .post(
-          `http://https://taskflow-lfo7.onrender.com/project/${projectId}/task`,
+          `https://taskflow-lfo7.onrender.com/project/${projectId}/task`,
           payload
         )
         .then((res) => {
@@ -78,7 +78,7 @@ const AddTaskModal = ({
     } else {
       axios
         .put(
-          `http://https://taskflow-lfo7.onrender.com/project/${projectId}/task/${taskId}`,
+          `https://taskflow-lfo7.onrender.com/project/${projectId}/task/${taskId}`,
           payload
         )
         .then((res) => {

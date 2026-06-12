@@ -17,7 +17,7 @@ const AddProjectModal = ({
   useEffect(() => {
     if (edit && isModalOpen) {
       axios
-        .get(`http://https://taskflow-lfo7.onrender.com/project/${id}`)
+        .get(`https://taskflow-lfo7.onrender.com/project/${id}`)
         .then((res) => {
           setTitle(res.data[0].title);
           setDesc(res.data[0].description);
@@ -32,7 +32,7 @@ const AddProjectModal = ({
     e.preventDefault();
     if (!edit) {
       axios
-        .post("http://https://taskflow-lfo7.onrender.com/project/", {
+        .post("https://taskflow-lfo7.onrender.com/project/", {
           title,
           description: desc,
         })
@@ -55,7 +55,7 @@ const AddProjectModal = ({
         });
     } else {
       axios
-        .put(`http://https://taskflow-lfo7.onrender.com/project/${id}`, {
+        .put(`https://taskflow-lfo7.onrender.com/project/${id}`, {
           title,
           description: desc,
         })
